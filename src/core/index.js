@@ -5,7 +5,7 @@ import utils from '../utils'
 import Paint from '../paint'
 
 const startLocationKey = "迪士尼"
-const lineCount = 1
+const lineCount = 4
 const disMap = utils.getDisMap(data) // 距离哈希表 disMap[origin][target]
 
 const KMeansTransform = (data) => {
@@ -42,7 +42,7 @@ export default function coreRun() {
     group.unshift(startNode.酒店名称)
     const ga = new GA(group, startLocationKey, disMap)
 
-    for (let i = 0; i < 10000; i++) {
+    for (let i = 0; i < 1000; i++) {
       ga.run()
     }
     console.log(`线路${i} 共{${group.length}站}:`)

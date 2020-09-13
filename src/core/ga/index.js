@@ -17,7 +17,7 @@ class GA {
 
   // 初始化物种数组 用于遗传演化
   initPopulation() {
-    for (let i = 0; i < this.locationCount; i++) {
+    for (let i = 0; i < 500; i++) {
       this.population[i] = _.shuffle(this.locations.slice())
     }
   }
@@ -33,7 +33,6 @@ class GA {
     // 先计算每个生物的健壮程度 用距离反比
     for (let i = 0; i < this.population.length; i++) {
       let d = this.getDis(this.population[i])
-
       if (d < this.recordDistance) {
         this.recordDistance = d;
         this.bestEver = this.population[i];
@@ -58,7 +57,7 @@ class GA {
       let orderA = this.pickOne(this.population, this.fitness);
       let orderB = this.pickOne(this.population, this.fitness);
       let order = this.crossOver(orderA, orderB);
-      this.mutate(order, 0.05);
+      this.mutate(order, 0.1);
       newPopulation[i] = order;
     }
     this.population = newPopulation
@@ -80,7 +79,7 @@ class GA {
 
   // 狠狠交配一下，取两个排序的特征 先从 a 里面随机取几个 剩下的都通过 b 填充
   crossOver(orderA, orderB) {
-    let start = Math.floor(utils.random(orderA.length));
+    let start = Math.floor(utils.random(0, orderA.length));
     let end = Math.floor(utils.random(start + 1, orderA.length));
     let neworder = orderA.slice(start, end);
     for (let i = 0; i < orderB.length; i++) {
