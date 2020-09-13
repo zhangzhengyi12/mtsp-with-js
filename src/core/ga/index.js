@@ -1,16 +1,52 @@
 import _ from 'loadsh'
 import utils from '../../utils'
 
+class OrderPopulation {
+  constructor(
+    lineOrder,
+    groupRange,
+    start
+  ) {
+    this.lineOrder = lineOrder
+    this.groupRange = groupRange
+    this.start = start
+  }
+
+  // 遍历内部所有区间 参数为闭区间
+  forEachRanges(callback) {
+    for (let i = 0; i <= this.groupRange.length; i++) {
+      let s = this.groupRange[i - 1] ? this.groupRange[i - 1] + 1 : 0
+      let e = this.groupRange[i] ? this.groupRange[i] : this.lineOrder.length - 1
+      callback(s, e, i)
+    }
+  }
+
+  forEachAllEdge(callback) {
+    this.forEachRanges((rangeStart, rangeEnd, index) => {
+      // 每一个区间的起始节点都是开始节点
+      let pairStart = -1
+      for (let i = rangeStart; i <= rangeEnd; i++) { // 遍历区间内的所有节点
+        callback(pairStart === -1 ? this.start : this.lineOrder[pairStart], this.lineOrder[i], index)
+        pairStart = i
+      }
+    })
+  }
+
+  copy() {
+    return new OrderPopulation(this.lineOrder.slice(), this.groupRange.slice(), this.start)
+  }
+}
+
 class GA {
-  constructor(locations, start, disMap) {
+  constructor(locations, lineCount, start, disMap) {
     this.population = []
     this.fitness = []
-    this.locations = locations
-    this.locationCount = locations.length
     this.disMap = disMap
     this.recordDistance = Infinity
     this.bestEver = []
     this.start = start
+    this.locations = locations
+    this.lineCount = lineCount
 
     this.initPopulation()
   }
@@ -18,7 +54,9 @@ class GA {
   // 初始化物种数组 用于遗传演化
   initPopulation() {
     for (let i = 0; i < 500; i++) {
-      this.population[i] = _.shuffle(this.locations.slice())
+      const shuffleOrder = _.shuffle(this.locations.slice())
+      const shuffleRange = utils.randomRange(0, this.locations.length - 1, this.lineCount)
+      this.population[i] = new OrderPopulation(shuffleOrder, shuffleRange, this.start)
     }
   }
 
@@ -36,6 +74,7 @@ class GA {
       if (d < this.recordDistance) {
         this.recordDistance = d;
         this.bestEver = this.population[i];
+        console.log(this.recordDistance)
       }
       this.fitness[i] = 1 / (Math.pow(d, 8) + 1);
     }
@@ -56,9 +95,10 @@ class GA {
     for (let i = 0; i < this.population.length; i++) {
       let orderA = this.pickOne(this.population, this.fitness);
       let orderB = this.pickOne(this.population, this.fitness);
-      let order = this.crossOver(orderA, orderB);
-      this.mutate(order, 0.1);
-      newPopulation[i] = order;
+      const newLineOrder = this.crossOver(orderA.lineOrder, orderB.lineOrder)
+      let newOrder = new OrderPopulation(newLineOrder, utils.rangeMerge(orderA.groupRange, orderB.groupRange), orderA.start)
+      this.mutate(newOrder.lineOrder, 0.01)
+      newPopulation[i] = newOrder
     }
     this.population = newPopulation
   }
@@ -74,7 +114,7 @@ class GA {
       index++;
     }
     index--;
-    return list[index].slice();
+    return list[index].copy()
   }
 
   // 狠狠交配一下，取两个排序的特征 先从 a 里面随机取几个 剩下的都通过 b 填充
@@ -93,37 +133,21 @@ class GA {
 
   // 基因突变
   mutate(order, mutationRate) {
-    for (let i = 0; i < this.locationCount; i++) {
+    for (let i = 0; i < order.length; i++) {
       if (Math.random(1) < mutationRate) {
         let indexA = utils.random(0, order.length - 1)
-        let indexB = (indexA + 1) % this.locationCount;
+        let indexB = (indexA + 1) % this.locations.length;
         this.swap(order, indexA, indexB);
       }
     }
   }
 
-  // 给定序列 a b 1 e f g
-  // 回调 cb(1,e) cb(e,f) cb(g,a) cb(a,b)
-  forEach(order, start, cb) {
-    const len = order.length
-    let startIndex = order.findIndex(v => v === start)
-    let i = startIndex
-    const get = i => i % len
-    while (true) {
-      cb(order[get(i)], order[get(i + 1)])
-      i++
-      if (get(i + 1) === startIndex) break
-    }
-  }
-
-  // 计算一个路径的最终长度要从迪士尼开始
+  // 计算该路径的最终长度
   getDis(order) {
     let sum = 0
-    this.forEach(order, this.start, (s, e) => {
+    order.forEachAllEdge((s, e) => {
       sum += this.disMap[s][e]
     })
-
-    if (sum === 0) debugger
     return sum
   }
 

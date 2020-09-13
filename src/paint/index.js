@@ -29,11 +29,11 @@ export default class Paint {
   }
 
   static transX(x) {
-    return ((x - this.xMin) / this.xRange) * 800 + 20
+    return ((x - this.xMin) / this.xRange) * Paint.width + 20
   }
 
   static transY(y) {
-    return (1 - (((y - this.yMin) / this.yRange))) * 800 + 20
+    return (1 - (((y - this.yMin) / this.yRange))) * Paint.height + 20
   }
 
   constructor(width, height, ctx) {
@@ -43,32 +43,31 @@ export default class Paint {
     window.ctx = ctx
   }
 
-  draw(order, disMap, color) {
-    for (let i = 0; i < order.length; i++) {
-      const loc = order[i]
-      if (loc === '迪士尼') {
+  draw(order, disMap, colorMap) {
+    this.ctx.clearRect(0, 0, 1000, 1000)
+    order.forEachAllEdge((s, e, index) => {
+      if (s === '迪士尼') {
         this.ctx.fillStyle = "red"
       } else {
-        this.ctx.fillStyle = color
+        this.ctx.fillStyle = colorMap[index]
       }
+
       this.ctx.beginPath()
-      const x = Paint.transX(disMap[loc].x)
-      const y = Paint.transY(disMap[loc].y)
+      const x = Paint.transX(disMap[s].x)
+      const y = Paint.transY(disMap[s].y)
       this.ctx.arc(x, y, 3, 0, Math.PI * 2, true)
       this.ctx.fill()
 
       // 绘制到下一个节点的线
-      if (order[i + 1]) {
-        this.ctx.strokeStyle = color
-        const nextNodeX = Paint.transX(disMap[order[i + 1]].x)
-        const nextNodeY = Paint.transY(disMap[order[i + 1]].y)
+      this.ctx.strokeStyle = colorMap[index]
+      const nextNodeX = Paint.transX(disMap[e].x)
+      const nextNodeY = Paint.transY(disMap[e].y)
 
-        this.ctx.beginPath()
-        this.ctx.moveTo(x, y)
-        this.ctx.lineTo(nextNodeX, nextNodeY)
-        this.ctx.stroke();
-      }
-    }
+      this.ctx.beginPath()
+      this.ctx.moveTo(x, y)
+      this.ctx.lineTo(nextNodeX, nextNodeY)
+      this.ctx.stroke();
+    })
   }
 
   drawTotal(record) {
