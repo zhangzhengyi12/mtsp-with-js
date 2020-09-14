@@ -36,6 +36,7 @@ export default function coreRun() {
 
   const groups = KMeans(lineCount, KMeansTransform(data))
 
+  let lines = new Array(groups.length).fill(1).map(() => new Array())
   let sumDis = 0
   for (let i = 0; i < groups.length; i++) {
     let group = groups[i]
@@ -50,7 +51,13 @@ export default function coreRun() {
     sumDis += ga.recordDistance
 
     paint.draw(ga.getPath(), disMap, colorMap[i])
+
+    lines[i] = {
+      paths: ga.getPath().reverse(),
+      dis: ga.recordDistance
+    }
   }
 
   paint.drawTotal(sumDis)
+  $app.$children[0].setTableData(lines)
 }
