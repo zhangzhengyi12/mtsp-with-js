@@ -26,7 +26,8 @@ class GA {
 
   // run 开始算法核心
   run() {
-    // this.reCalcFitness()
+    this.reCalcFitness()
+    debugger
     // this.fuck()
   }
 
@@ -34,11 +35,10 @@ class GA {
   reCalcFitness() {
     // 先计算每个生物的健壮程度 用距离反比
     for (let i = 0; i < this.population.length; i++) {
-      let d = this.getDis(this.population[i])
+      let d = this.population[i].getTotalDistance()
       if (d < this.recordDistance) {
         this.recordDistance = d;
         this.bestEver = this.population[i];
-        console.log(this.recordDistance)
       }
       this.fitness[i] = 1 / (Math.pow(d, 8) + 1);
     }

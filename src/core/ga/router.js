@@ -1,6 +1,7 @@
 import RM from '../../routerManager'
 import utils from '../../utils'
 import config from '../../config'
+import _ from 'loadsh'
 
 // 最终解决方案 人口的具象
 class Router {
@@ -19,7 +20,7 @@ class Router {
    */
   static getRandomPopulation() {
     const instance = new Router()
-    instance.totalStore = RM.getLocations()
+    instance.totalStore = _.shuffle(RM.getLocations())
     instance.reRandomRangeForTotalStore()
     return instance
   }
@@ -67,7 +68,7 @@ class Router {
 
   forEachPaths(callback) {
     for (let i = 0; i < this.paths.length; i++) {
-      callback(path, i)
+      callback(this.paths[i], i)
     }
   }
 
@@ -77,8 +78,25 @@ class Router {
       for (let i = 0; i < path.length; i++) {
         let e = path[i]
         callback(s, e, index, i === path.length - 1)
+        s = e
       }
     })
+  }
+
+  // 返回交叉后的后代
+  crossOver(b) {
+    let newRouter = new Router()
+    let a = this
+
+    let aStore = [].concat(...a.paths)
+    let bStore = [].concat(...b.paths)
+
+    let aRangeStart = 0
+    let aRangeEnd = 0
+
+    while(aRangeStart === bRangeStart){
+
+    }
   }
 }
 
