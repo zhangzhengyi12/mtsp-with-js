@@ -19,11 +19,10 @@ export default function coreRun() {
   let ga = new GA(data.map(v => v.酒店名称).filter(v => v !== '迪士尼'), lineCount, startLocationKey, disMap)
   Paint.setupAxiosTransform(data)
   let paint = Paint.getInstance()
-
   const tick = () => {
     ga.run()
-    paint.draw(ga.bestEver, disMap, colorMap)
-    requestAnimationFrame(tick)
+    // paint.draw(ga.bestEver, disMap, colorMap)
+    // requestAnimationFrame(tick)
   }
   tick()
 }

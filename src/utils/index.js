@@ -15,34 +15,31 @@ const getDisMap = (data) => {
   return map
 }
 
-const randomRange = (start, end, count) => {
+// 随机区间生成
+const randomRange = (n, count) => {
   let range = []
   while (true) {
-    let newSp = random(start + 1, end - 1)
+    let newSp = random(1, n)
     if (range.includes(newSp)) {
       continue
     }
     range.push(newSp)
     if (range.length >= count - 1) break
   }
-  return range.sort((a, b) => a - b)
-}
 
-const rangeMerge = (a, b) => {
-  let res = []
-  let merge = [...a, ...b].sort((a, b) => a - b)
-  for (let i = 0; i < a.length; i++) {
-    res.push(merge[i * 2])
-  }
-  return res
-}
+  range.push(n)
 
+  return range.sort((a, b) => a - b).map((v, i) => {
+    let rangeStart = range[i - 1] ? range[i - 1] : 0
+    let rangeEnd = v
+    return rangeEnd - rangeStart
+  })
+}
 
 export default {
   random,
   getDisMap,
-  randomRange,
-  rangeMerge
+  randomRange
 }
 
 

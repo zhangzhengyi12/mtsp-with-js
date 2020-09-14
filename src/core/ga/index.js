@@ -1,41 +1,7 @@
 import _ from 'loadsh'
 import utils from '../../utils'
-
-class OrderPopulation {
-  constructor(
-    lineOrder,
-    groupRange,
-    start
-  ) {
-    this.lineOrder = lineOrder
-    this.groupRange = groupRange
-    this.start = start
-  }
-
-  // 遍历内部所有区间 参数为闭区间
-  forEachRanges(callback) {
-    for (let i = 0; i <= this.groupRange.length; i++) {
-      let s = this.groupRange[i - 1] ? this.groupRange[i - 1] + 1 : 0
-      let e = this.groupRange[i] ? this.groupRange[i] : this.lineOrder.length - 1
-      callback(s, e, i)
-    }
-  }
-
-  forEachAllEdge(callback) {
-    this.forEachRanges((rangeStart, rangeEnd, index) => {
-      // 每一个区间的起始节点都是开始节点
-      let pairStart = -1
-      for (let i = rangeStart; i <= rangeEnd; i++) { // 遍历区间内的所有节点
-        callback(pairStart === -1 ? this.start : this.lineOrder[pairStart], this.lineOrder[i], index)
-        pairStart = i
-      }
-    })
-  }
-
-  copy() {
-    return new OrderPopulation(this.lineOrder.slice(), this.groupRange.slice(), this.start)
-  }
-}
+import Router from './router'
+import config from '../../config'
 
 class GA {
   constructor(locations, lineCount, start, disMap) {
@@ -51,19 +17,17 @@ class GA {
     this.initPopulation()
   }
 
-  // 初始化物种数组 用于遗传演化
+  // 初始化随机人口
   initPopulation() {
-    for (let i = 0; i < 500; i++) {
-      const shuffleOrder = _.shuffle(this.locations.slice())
-      const shuffleRange = utils.randomRange(0, this.locations.length - 1, this.lineCount)
-      this.population[i] = new OrderPopulation(shuffleOrder, shuffleRange, this.start)
+    for (let i = 0; i < config.popCount; i++) {
+      this.population[i] = Router.getRandomPopulation()
     }
   }
 
   // run 开始算法核心
   run() {
-    this.reCalcFitness()
-    this.fuck()
+    // this.reCalcFitness()
+    // this.fuck()
   }
 
   // 计算每个生物的健壮程度 值越高代表越健康越优秀
@@ -115,40 +79,6 @@ class GA {
     }
     index--;
     return list[index].copy()
-  }
-
-  // 狠狠交配一下，取两个排序的特征 先从 a 里面随机取几个 剩下的都通过 b 填充
-  crossOver(orderA, orderB) {
-    let start = Math.floor(utils.random(0, orderA.length));
-    let end = Math.floor(utils.random(start + 1, orderA.length));
-    let neworder = orderA.slice(start, end);
-    for (let i = 0; i < orderB.length; i++) {
-      let city = orderB[i];
-      if (!neworder.includes(city)) {
-        neworder.push(city);
-      }
-    }
-    return neworder;
-  }
-
-  // 基因突变
-  mutate(order, mutationRate) {
-    for (let i = 0; i < order.length; i++) {
-      if (Math.random(1) < mutationRate) {
-        let indexA = utils.random(0, order.length - 1)
-        let indexB = (indexA + 1) % this.locations.length;
-        this.swap(order, indexA, indexB);
-      }
-    }
-  }
-
-  // 计算该路径的最终长度
-  getDis(order) {
-    let sum = 0
-    order.forEachAllEdge((s, e) => {
-      sum += this.disMap[s][e]
-    })
-    return sum
   }
 
   swap(a, i, j) {
