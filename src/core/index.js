@@ -58,6 +58,9 @@ export default function coreRun() {
     }
   }
 
+  localStorage.setItem('a', sumDis)
+  localStorage.setItem('b', JSON.stringify(lines))
+
   paint.drawTotal(sumDis)
   $app.$children[0].setTableData(lines)
 }
