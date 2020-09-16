@@ -45,7 +45,7 @@ export default class Paint {
 
   draw(order, disMap, colorMap) {
     this.ctx.clearRect(0, 0, 1000, 1000)
-    order.forEachAllEdge((s, e, index) => {
+    order.forEachAllEdges((s, e, index, isDone) => {
       if (s === '迪士尼') {
         this.ctx.fillStyle = "red"
       } else {
@@ -57,6 +57,14 @@ export default class Paint {
       const y = Paint.transY(disMap[s].y)
       this.ctx.arc(x, y, 3, 0, Math.PI * 2, true)
       this.ctx.fill()
+
+      if (isDone) {
+        this.ctx.beginPath()
+        const x = Paint.transX(disMap[e].x)
+        const y = Paint.transY(disMap[e].y)
+        this.ctx.arc(x, y, 3, 0, Math.PI * 2, true)
+        this.ctx.fill()
+      }
 
       // 绘制到下一个节点的线
       this.ctx.strokeStyle = colorMap[index]

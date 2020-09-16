@@ -2,6 +2,7 @@ import data from '../data/data.json'
 import GA from './ga'
 import utils from '../utils'
 import Paint from '../paint'
+import Router from '../core/ga/router'
 
 const startLocationKey = "迪士尼"
 const lineCount = 4
@@ -21,8 +22,16 @@ export default function coreRun() {
   let paint = Paint.getInstance()
   const tick = () => {
     ga.run()
-    // paint.draw(ga.bestEver, disMap, colorMap)
-    // requestAnimationFrame(tick)
+    paint.draw(ga.bestEver, disMap, colorMap)
+    paint.drawTotal(ga.recordDistance)
+    requestAnimationFrame(tick)
   }
   tick()
+  // let route = new Router()
+  // route.paths = [
+  //   ['a', 'b', 'c', 'd'],
+  //   ['1', '2', '3', '4']
+  // ]
+  // route.mutate()
+  // debugger
 }
