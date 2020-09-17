@@ -91,44 +91,9 @@ class Router {
     })
   }
 
-  // 返回交叉后的后代
-  // crossOver(b) {
-  //   let newRouter = new Router()
-  //   let a = this
-
-  //   let aStore = [].concat(...a.paths)
-  //   let bStore = [].concat(...b.paths)
-
-  //   let aRangeStart = 0
-  //   let aRangeEnd = 0
-
-  //   while (aRangeStart === aRangeEnd) {
-  //     aRangeStart = utils.random(0, RM.getLocations().length)
-  //     aRangeEnd = utils.random(0, RM.getLocations().length)
-  //   }
-
-  //   if (aRangeStart > aRangeEnd) {
-  //     [aRangeStart, aRangeEnd] = [aRangeEnd, aRangeStart]
-  //   }
-
-  //   newRouter.totalStore = aStore.slice(aRangeStart, aRangeEnd)
-
-  //   for (let bLocation of bStore) {
-  //     if (!newRouter.totalStore.includes(bLocation)) {
-  //       newRouter.totalStore.push(bLocation)
-  //     }
-  //   }
-
-  //   newRouter.reRandomRangeForTotalStore()
-
-  //   return newRouter
-  // }
-
   saveCurrentBreak() {
     this.breaks = this.paths.map(path => path.length)
   }
-
-
 
   mutate(i) {
     // // 第一种方式 选择随机区间然后随机插入
