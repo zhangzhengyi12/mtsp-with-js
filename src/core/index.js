@@ -27,11 +27,4 @@ export default function coreRun() {
     requestAnimationFrame(tick)
   }
   tick()
-  // let route = new Router()
-  // route.paths = [
-  //   ['a', 'b', 'c', 'd'],
-  //   ['1', '2', '3', '4']
-  // ]
-  // route.mutate()
-  // debugger
 }

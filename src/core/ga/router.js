@@ -39,8 +39,8 @@ class Router {
   // 获取一个随机化但是具有一定限制的区间
   getRouterRange() {
     const upper = (RM.getLocations().length)
-    const fa = upper / config.lineCount * 1.6
-    const fb = upper / config.lineCount * 0.6
+    const fa = upper / config.lineCount * 8
+    const fb = upper / config.lineCount * 0.01
 
     let a = utils.randomRange(this.totalStore.length, config.lineCount)
     while (true) {
@@ -133,20 +133,57 @@ class Router {
   mutate(i) {
     // // 第一种方式 选择随机区间然后随机插入
     // // 复用之间的 break 重新生成 paths
-    if (true) {
+    if (i === 1) {
       this.totalStore = this.swapInsert(this.totalStore)
       this.genPathsByBreakRanges()
     }
 
-    // if (i === 2) {
+    if (i === 2) {
+      this.totalStore = this.flipInset(this.totalStore)
+      this.genPathsByBreakRanges()
+    }
 
-    // }
+    if (i === 3) {
+      this.totalStore = this.leftSlideInsert(this.totalStore)
+      this.genPathsByBreakRanges()
+    }
 
-    // if (i === 3) {
+    if (i === 4) {
+      this.totalStore = this.rightSlideInsert(this.totalStore)
+      this.genPathsByBreakRanges()
+    }
 
-    // }
+    if (i === 5) {
+      this.breaks = this.getRouterRange()
+      this.genPathsByBreakRanges()
+    }
+
+    if (i === 6) {
+      this.totalStore = this.flipInset(this.totalStore)
+      this.breaks = this.getRouterRange()
+      this.genPathsByBreakRanges()
+    }
+
+    if (i === 7) {
+      this.totalStore = this.swapInsert(this.totalStore)
+      this.breaks = this.getRouterRange()
+      this.genPathsByBreakRanges()
+    }
+
+    if (i === 8) {
+      this.totalStore = this.leftSlideInsert(this.totalStore)
+      this.breaks = this.getRouterRange()
+      this.genPathsByBreakRanges()
+    }
+
+    if (i === 9) {
+      this.totalStore = this.rightSlideInsert(this.totalStore)
+      this.breaks = this.getRouterRange()
+      this.genPathsByBreakRanges()
+    }
   }
 
+  // 在 total router 选择一个随机区间 最后随机插入
   swapInsert(routers) {
     const [i, j] = utils.randomSample(0, routers.length, 2)
     const segment = routers.slice(i, j)
@@ -156,61 +193,37 @@ class Router {
     return routers
   }
 
-  // swapMutate() {
-  //   let rRange1Index = 0
-  //   let rRange2Index = 0
-  //   while (rRange1Index === rRange2Index) {
-  //     rRange1Index = utils.random(1, this.paths.length - 1)
-  //     rRange2Index = utils.random(1, this.paths.length - 1)
-  //   }
+  // 在 total router 选择一个随机区间 然后反转 最后随机插入
+  flipInset(routers) {
+    const [i, j] = utils.randomSample(0, routers.length, 2)
+    const segment = routers.slice(i, j).reverse()
+    routers.splice(i, j - i)
+    const insertIndex = utils.random(0, routers.length - 1)
+    routers.splice(insertIndex, 0, ...segment)
+    return routers
+  }
 
-  //   let rRange1Start = 0
-  //   let rRange1End = 0
-  //   while (rRange1Start === rRange1End) {
-  //     rRange1Start = utils.random(1, this.paths[rRange1Index].length - 1)
-  //     rRange1End = utils.random(1, this.paths[rRange1Index].length - 1)
-  //   }
-  //   if (rRange1Start > rRange1End) {
-  //     [rRange1Start, rRange1End] = [rRange1End, rRange1Start]
-  //   }
+  // 在 total router 选择一个随机区间 然后将最右边的元素放到最左边 最后随机插入
+  leftSlideInsert(routers) {
+    const [i, j] = utils.randomSample(0, routers.length, 2)
+    const segment = routers.slice(i, j)
+    routers.splice(i, j - i)
+    segment.unshift(segment.pop())
+    const insertIndex = utils.random(0, routers.length - 1)
+    routers.splice(insertIndex, 0, ...segment)
+    return routers
+  }
 
-  //   let rRange2Start = 0
-  //   let rRange2End = 0
-  //   while (rRange2Start === rRange2End) {
-  //     rRange2Start = utils.random(1, this.paths[rRange2Index].length - 1)
-  //     rRange2End = utils.random(1, this.paths[rRange2Index].length - 1)
-  //   }
-  //   if (rRange2Start > rRange2End) {
-  //     [rRange2Start, rRange2End] = [rRange2End, rRange2Start]
-  //   }
-
-  //   let range1List = this.paths[rRange1Index].slice(rRange1Start, rRange1End)
-  //   let range2List = this.paths[rRange2Index].slice(rRange2Start, rRange2End)
-
-  //   this.paths[rRange1Index].splice(rRange1Start, rRange1End - rRange1Start, ...range2List)
-  //   this.paths[rRange2Index].splice(rRange2Start, rRange2End - rRange2Start, ...range1List)
-  // }
-
-  // innerMutate() {
-  //   for (let path of this.paths) {
-  //     let random1Index = utils.random(0, path.length - 1)
-  //     let random2Index = utils.random(0, path.length - 1)
-  //     while (random1Index === random2Index) {
-  //       random1Index = utils.random(0, path.length - 1)
-  //       random2Index = utils.random(0, path.length - 1)
-  //     }
-
-  //     let temp = path[random1Index]
-  //     path[random1Index] = path[random2Index]
-  //     path[random2Index] = temp
-  //   }
-  // }
-
-  // // 在全部路由里面随机找一个区间 然后反转并插入到一个随机位置
-  // swapInsert() {
-  //   let randomPathIndex = utils.random(0, this.paths.length - 1)
-  //   this.paths[randomPathIndex] = this.paths[randomPathIndex].reverse()
-  // }
+  // 在 total router 选择一个随机区间 然后将最右边的元素放到最左边 最后随机插入
+  rightSlideInsert(routers) {
+    const [i, j] = utils.randomSample(0, routers.length, 2)
+    const segment = routers.slice(i, j)
+    routers.splice(i, j - i)
+    segment.push(segment.shift())
+    const insertIndex = utils.random(0, routers.length - 1)
+    routers.splice(insertIndex, 0, ...segment)
+    return routers
+  }
 }
 
 export default Router

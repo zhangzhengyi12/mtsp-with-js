@@ -58,7 +58,12 @@ export default class Paint {
       this.ctx.arc(x, y, 3, 0, Math.PI * 2, true)
       this.ctx.fill()
 
-      if (isDone) {
+      if (isDone) { // 路径遍历已经结束  e 是最后一个节点
+        if (e === '迪士尼') {
+          this.ctx.fillStyle = "red"
+        } else {
+          this.ctx.fillStyle = colorMap[index]
+        }
         this.ctx.beginPath()
         const x = Paint.transX(disMap[e].x)
         const y = Paint.transY(disMap[e].y)
