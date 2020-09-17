@@ -1,24 +1,26 @@
 import _ from 'loadsh'
 import utils from '../../utils'
+import Router from './router'
+import config from '../../config'
 
 class GA {
-  constructor(locations, start, disMap) {
+  constructor(locations, lineCount, start, disMap) {
     this.population = []
     this.fitness = []
-    this.locations = locations
-    this.locationCount = locations.length
     this.disMap = disMap
     this.recordDistance = Infinity
     this.bestEver = []
     this.start = start
+    this.locations = locations
+    this.lineCount = lineCount
 
     this.initPopulation()
   }
 
-  // 初始化物种数组 用于遗传演化
+  // 初始化随机人口
   initPopulation() {
-    for (let i = 0; i < 500; i++) {
-      this.population[i] = _.shuffle(this.locations.slice())
+    for (let i = 0; i < config.popCount; i++) {
+      this.population[i] = Router.getRandomPopulation()
     }
   }
 
@@ -32,10 +34,11 @@ class GA {
   reCalcFitness() {
     // 先计算每个生物的健壮程度 用距离反比
     for (let i = 0; i < this.population.length; i++) {
-      let d = this.getDis(this.population[i])
+      let d = this.population[i].getTotalDistance()
       if (d < this.recordDistance) {
         this.recordDistance = d;
         this.bestEver = this.population[i];
+        console.log(d)
       }
       this.fitness[i] = 1 / (Math.pow(d, 8) + 1);
     }
@@ -50,17 +53,33 @@ class GA {
     }
   }
 
-  // 交配一下 产下优质后代
+  // 择优突变
   fuck() {
     let newPopulation = []
-    for (let i = 0; i < this.population.length; i++) {
-      let orderA = this.pickOne(this.population, this.fitness);
-      let orderB = this.pickOne(this.population, this.fitness);
-      let order = this.crossOver(orderA, orderB);
-      this.mutate(order, 0.1);
-      newPopulation[i] = order;
+    let rdPopIndexs = _.shuffle(this.population.map((v, i) => i))
+    for (let i = 0; i < this.population.length; i += 10) {
+      // 随机抽取10个元素 找到其中最好的 然后复制出10个副本
+      const bestIndex = this.findBest(rdPopIndexs.slice(i, i + 10), this.fitness)
+      const best = this.population[bestIndex]
+      const bestPops = new Array(10).fill(1).map(() => best.getCopy())
+
+      // 对10个副本分别进行不同方式的基因突变
+      for (let i = 0; i < 10; i++) {
+        bestPops[i].mutate(i)
+      }
+      newPopulation = newPopulation.concat(bestPops)
     }
     this.population = newPopulation
+  }
+
+  findBest(indexs, fitness) {
+    let bestIndex = indexs[0]
+    for (let index of indexs) {
+      if (fitness[index] > fitness[bestIndex]) {
+        bestIndex = index
+      }
+    }
+    return bestIndex
   }
 
   // 按照fitness的健康程度 更大概率选择相对优质的基因
@@ -74,57 +93,7 @@ class GA {
       index++;
     }
     index--;
-    return list[index].slice();
-  }
-
-  // 狠狠交配一下，取两个排序的特征 先从 a 里面随机取几个 剩下的都通过 b 填充
-  crossOver(orderA, orderB) {
-    let start = Math.floor(utils.random(0, orderA.length));
-    let end = Math.floor(utils.random(start + 1, orderA.length));
-    let neworder = orderA.slice(start, end);
-    for (let i = 0; i < orderB.length; i++) {
-      let city = orderB[i];
-      if (!neworder.includes(city)) {
-        neworder.push(city);
-      }
-    }
-    return neworder;
-  }
-
-  // 基因突变
-  mutate(order, mutationRate) {
-    for (let i = 0; i < this.locationCount; i++) {
-      if (Math.random(1) < mutationRate) {
-        let indexA = utils.random(0, order.length - 1)
-        let indexB = (indexA + 1) % this.locationCount;
-        this.swap(order, indexA, indexB);
-      }
-    }
-  }
-
-  // 给定序列 a b 1 e f g
-  // 回调 cb(1,e) cb(e,f) cb(g,a) cb(a,b)
-  forEach(order, start, cb) {
-    const len = order.length
-    let startIndex = order.findIndex(v => v === start)
-    let i = startIndex
-    const get = i => i % len
-    while (true) {
-      cb(order[get(i)], order[get(i + 1)])
-      i++
-      if (get(i + 1) === startIndex) break
-    }
-  }
-
-  // 计算一个路径的最终长度要从迪士尼开始
-  getDis(order) {
-    let sum = 0
-    this.forEach(order, this.start, (s, e) => {
-      sum += this.disMap[s][e]
-    })
-
-    if (sum === 0) debugger
-    return sum
+    return list[index]
   }
 
   swap(a, i, j) {
