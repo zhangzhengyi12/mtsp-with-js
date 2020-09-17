@@ -59,27 +59,29 @@ class GA {
     let rdPopIndexs = _.shuffle(this.population.map((v, i) => i))
     for (let i = 0; i < this.population.length; i += 10) {
       // 随机抽取10个元素 找到其中最好的
-      const best = this.findBest(this.population, rdPopIndexs.slice(i, i + 10), this.fitness)
+      const bestIndex = this.findBest(rdPopIndexs.slice(i, i + 10), this.fitness)
+      const best = this.population[bestIndex]
       // 复制10个副本
       const bestPops = new Array(10).fill(1).map(() => best.getCopy())
 
-      // 对10个副本分别进行各种变异操作
+      // 对10个副本分别进行不同方式的基因突变
       for (let i = 0; i < 10; i++) {
         bestPops[i].mutate()
       }
+
       newPopulation = newPopulation.concat(bestPops)
     }
     this.population = newPopulation
   }
 
-  findBest(pop, indexs, fitness) {
+  findBest(indexs, fitness) {
     let bestIndex = indexs[0]
     for (let index of indexs) {
-      if (fitness[index] < fitness[bestIndex]) {
+      if (fitness[index] > fitness[bestIndex]) {
         bestIndex = index
       }
     }
-    return pop[bestIndex]
+    return bestIndex
   }
 
   // 按照fitness的健康程度 更大概率选择相对优质的基因
