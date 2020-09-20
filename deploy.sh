@@ -1,6 +1,6 @@
 rm -rf dist
 
-npm run example:build
+npm run build
 
 cd dist
 
