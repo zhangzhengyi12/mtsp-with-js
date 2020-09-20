@@ -1,18 +1,18 @@
 import Paint from './paint'
 import coreRun from './core'
-import Vue from 'vue';
-import ElementUI from 'element-ui';
-import 'element-ui/lib/theme-chalk/index.css';
-import App from './preview/app';
+// import Vue from 'vue';
+// import ElementUI from 'element-ui';
+// import 'element-ui/lib/theme-chalk/index.css';
+// import App from './preview/app';
 
 
 function setup() {
-  Vue.use(ElementUI);
+  // Vue.use(ElementUI);
 
-  window.$app = new Vue({
-    el: '#app',
-    render: h => h(App)
-  })
+  // window.$app = new Vue({
+  //   el: '#app',
+  //   render: h => h(App)
+  // })
 
   setupPaint()
   coreRun()

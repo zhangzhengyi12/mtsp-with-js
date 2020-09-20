@@ -86,7 +86,7 @@ export default class Paint {
   drawTotal(record) {
     this.ctx.fillStyle = 'black'
     ctx.font = "24px serif";
-    let text = `线路行驶距离总和: ${(record / 1000).toFixed(1)}公里`
+    let text = `距离总和: ${(record / 1000).toFixed(1)}公里`
     this.ctx.fillText(text, 900, 40)
   }
 }

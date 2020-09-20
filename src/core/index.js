@@ -26,5 +26,6 @@ export default function coreRun() {
     paint.drawTotal(ga.recordDistance)
     requestAnimationFrame(tick)
   }
+  paint.drawTotal(ga.recordDistance)
   tick()
 }
