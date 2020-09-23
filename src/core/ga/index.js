@@ -82,20 +82,6 @@ class GA {
     return bestIndex
   }
 
-  // 按照fitness的健康程度 更大概率选择相对优质的基因
-  // 比如某个基因的健康程度为0.6那么大概就有60……的几率选中该基因
-  pickOne(list, prob) {
-    let index = 0;
-    let r = Math.random(1)
-
-    while (r > 0 && index <= list.length) {
-      r = r - prob[index];
-      index++;
-    }
-    index--;
-    return list[index]
-  }
-
   swap(a, i, j) {
     var temp = a[i];
     a[i] = a[j];
